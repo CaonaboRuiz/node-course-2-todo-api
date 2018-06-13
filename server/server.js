@@ -14,7 +14,10 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-// Basic CRUD
+// /todos <<< Basic CRUD >>>  
+// (post, list, get, delete, patch)
+
+// post - create new collection entry
 app.post('/todos', (req, res) => {
     var todo = new Todo({
         text: req.body.text
@@ -27,6 +30,7 @@ app.post('/todos', (req, res) => {
     });
 });
 
+// list - return list all entries
 app.get('/todos', (req, res) => {
     Todo.find().then((todos) => {
         res.send({todos});
@@ -35,6 +39,7 @@ app.get('/todos', (req, res) => {
     });
 });
 
+// get - return single entry by id
 app.get('/todos/:id', (req, res) => {
     var id = req.params.id;
 
@@ -51,6 +56,7 @@ app.get('/todos/:id', (req, res) => {
     }).catch((e) => res.status(400).send('catch bad request'));
 });
 
+// delete - remove/return an entry from collection
 app.delete('/todos/:id', (req, res) => {
     // get the id
     var id = req.params.id;
@@ -71,6 +77,7 @@ app.delete('/todos/:id', (req, res) => {
     }).catch((e) => res.status(400).send());
 });
 
+// patch - update partial attributes of single entry by id
 app.patch('/todos/:id', (req, res) => {
     var id = req.params.id;
     // create a subset from body, with property we want to change only
@@ -100,6 +107,24 @@ app.patch('/todos/:id', (req, res) => {
     })
 });
 
+// /users
+// post - create new collection entry
+app.post('/users', (req, res) => {
+    // create a user with a subset of properties we want only
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new User(body);
+    
+    // save and response with new user or error
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).send(user);
+    }).catch((e) => {
+        res.status(400).send(e);
+    })
+});
+
+// Listener
 app.listen(port, () => {
     console.log(`Started on port ${port}`);
 });
