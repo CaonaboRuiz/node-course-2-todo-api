@@ -44,7 +44,7 @@ UserSchema.methods.toJSON = function () {
 };
 
 UserSchema.methods.generateAuthToken = function() {
-    var user = this;
+    var user = this;  // Instance methods
     var access = 'auth';
     var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
 
@@ -52,6 +52,25 @@ UserSchema.methods.generateAuthToken = function() {
 
     return user.save().then(() => {
         return token;
+    });
+};
+
+// Model method using .statics is an object 
+// which everything you add to it turns into a Model method  
+UserSchema.statics.findByToken = function (token) {  
+    var User = this;   // Model methods with capital User
+    var decoded;
+
+    try {
+        decoded = jwt.verify(token, 'abc123');
+    } catch (e) {
+        return Promise.reject('Invalid token rejected');
+    }
+
+    return User.findOne({
+        '_id': decoded._id,
+        'tokens.token': token,      // use ' ' for tokens[].token when '.' value
+        'tokens.access': 'auth' 
     });
 };
 
