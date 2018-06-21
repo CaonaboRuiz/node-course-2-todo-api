@@ -75,7 +75,7 @@ UserSchema.statics.findByToken = function (token) {
     });
 };
 
-// Mongoose Middleware EVENTS that can be Pre or After
+// Mongoose Middleware EVENTS Pre save to hash password when change
 UserSchema.pre('save', function (next) {
     var user = this;
 
