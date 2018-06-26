@@ -1,3 +1,8 @@
+// Start MongoDB => run cmd then execute command below
+// cd C:\Program Files\MongoDB\Server\3.6\bin
+// mongod.exe --dbpath /Users/Caonabo/mongo-data
+// you should see at the end => waiting for connections on port 27017
+
 require('./config/config');
 
 const _ = require('lodash');
@@ -140,6 +145,19 @@ app.get('/users/me', authenticate, (req, res) => {
     // }).catch((e) => {
     //     res.status(401).send();
     // })
+});
+
+// POST /users/login {email, password}
+app.post('/users/login', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+
+    User.findByCredentials(body.email, body.password).then((user) => {
+        user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user);
+        });
+    }).catch((e) => {
+        res.status(400).send();
+    });
 });
 
 
